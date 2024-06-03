@@ -130,9 +130,9 @@ class App(customtkinter.CTk):
                                         self.forge_versions.append(forge_version)
                             if loop_one == "id":
                                 tmp_id = loop_two
-        self.menu_version_selection = customtkinter.CTkOptionMenu(self.second_frame,values=self.forge_versions,command=self.selection_version)
-        self.menu_version_selection.grid(row=6, column=0, padx=10, pady=10, sticky="ws")
-        CTkScrollableDropdown(self.menu_version_selection,values=self.forge_versions,command=self.selection_version)
+        self.menu_version_selection2 = customtkinter.CTkOptionMenu(self.second_frame,values=self.forge_versions,command=self.selection_version)
+        self.menu_version_selection2.grid(row=6, column=0, padx=10, pady=10, sticky="ws")
+        CTkScrollableDropdown(self.menu_version_selection2,values=self.forge_versions,command=self.selection_version)
         self.progressbar2 = customtkinter.CTkProgressBar(self.second_frame, orientation="horizontal")
         self.progressbar2.grid(row=6,column=1, padx=0, pady=0)
         self.progressbar2.set(0)
@@ -179,9 +179,9 @@ class App(customtkinter.CTk):
         except:
             print("Not found customs!")
             self.modpacks = []
-        self.menu_version_selection = customtkinter.CTkOptionMenu(self.third_frame,values=self.modpacks,command=self.selection_version)
-        self.menu_version_selection.grid(row=6, column=0, padx=10, pady=10, sticky="ws")
-        CTkScrollableDropdown(self.menu_version_selection,values=self.modpacks,command=self.selection_version)
+        self.menu_version_selection3 = customtkinter.CTkOptionMenu(self.third_frame,values=self.modpacks,command=self.selection_version)
+        self.menu_version_selection3.grid(row=6, column=0, padx=10, pady=10, sticky="ws")
+        CTkScrollableDropdown(self.menu_version_selection3,values=self.modpacks,command=self.selection_version)
         
         
         
@@ -250,12 +250,15 @@ class App(customtkinter.CTk):
     def home_button_event(self):
         self.select_frame_by_name("home")
         self.version= "1.20.6"
+        self.menu_version_selection.set("1.20.6")
     def frame_2_button_event(self):
         self.select_frame_by_name("frame_2")
         self.version= "1.20.6-50.0.31"
+        self.menu_version_selection2.set("1.20.6-50.0.31")
 
     def frame_3_button_event(self):
         self.select_frame_by_name("frame_3")
+        self.menu_version_selection3.set(self.modpacks[0])
         self.version = self.modpacks[0]
     def frame_4_button_event(self):
         self.select_frame_by_name("frame_4")
@@ -263,6 +266,9 @@ class App(customtkinter.CTk):
         customtkinter.set_appearance_mode(new_appearance_mode)
     def selection_version(self,new_version):
         self.version = new_version
+        self.menu_version_selection.set(new_version)
+        self.menu_version_selection2.set(new_version)
+        self.menu_version_selection3.set(new_version)
     def play_minecraft(self):
         try:
             minecraft=threading.Thread(target=self.async_play_minecraft)
