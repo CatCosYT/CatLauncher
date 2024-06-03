@@ -10,7 +10,6 @@ import psutil,threading
 
 
 
-
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
@@ -74,10 +73,10 @@ class App(customtkinter.CTk):
         # create home frame
         self.home_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.home_frame.grid_columnconfigure(0, weight=1)
+        self.empty2 = customtkinter.CTkLabel(self.home_frame,text="")
+        self.empty2.grid(row=3, column=0, padx=10, pady=10, sticky="ws")
         self.empty = customtkinter.CTkLabel(self.home_frame,text="")
         self.empty.grid(row=4, column=0, padx=10, pady=140, sticky="ws")
-        self.entry_minecraft_directory = customtkinter.CTkEntry(self.home_frame,placeholder_text=".CatLauncher",width=120,height=25,border_width=2,corner_radius=10)
-        self.entry_minecraft_directory.grid(row=3, column=0, padx=10, pady=10, sticky="ws")
         self.entry_name = customtkinter.CTkEntry(self.home_frame,placeholder_text="Ник",width=120,height=25,border_width=2,corner_radius=10)
         self.entry_name.grid(row=5, column=0, padx=10, pady=2.5, sticky="ws")
         self.button_play = customtkinter.CTkButton(self.home_frame,width=120,height=32,border_width=0,corner_radius=8,text="Play",command=self.play_minecraft)
@@ -106,10 +105,10 @@ class App(customtkinter.CTk):
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.second_frame.grid_columnconfigure(0, weight=1)
+        self.empty2 = customtkinter.CTkLabel(self.second_frame,text="")
+        self.empty2.grid(row=3, column=0, padx=10, pady=10, sticky="ws")
         self.empty = customtkinter.CTkLabel(self.second_frame,text="")
         self.empty.grid(row=4, column=0, padx=10, pady=140, sticky="ws")
-        self.entry_minecraft_directory2 = customtkinter.CTkEntry(self.second_frame,placeholder_text=".CatLauncher",width=120,height=25,border_width=2,corner_radius=10)
-        self.entry_minecraft_directory2.grid(row=3, column=0, padx=10, pady=10, sticky="ws")
         self.entry_name2 = customtkinter.CTkEntry(self.second_frame,placeholder_text="Ник",width=120,height=25,border_width=2,corner_radius=10)
         self.entry_name2.grid(row=5, column=0, padx=10, pady=2.5, sticky="ws")
         self.button_play2 = customtkinter.CTkButton(self.second_frame,width=120,height=32,border_width=0,corner_radius=8,text="Play",command=self.play_minecraft2)
@@ -139,15 +138,13 @@ class App(customtkinter.CTk):
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.third_frame.grid_columnconfigure(0, weight=1)
-        self.empty = customtkinter.CTkLabel(self.third_frame,text="")
-        self.empty.grid(row=4, column=0, padx=10, pady=140, sticky="ws")
-        self.entry_minecraft_directory3 = customtkinter.CTkEntry(self.third_frame,placeholder_text=".CatLauncher",width=120,height=25,border_width=2,corner_radius=10)
-        self.entry_minecraft_directory3.grid(row=3, column=0, padx=10, pady=10, sticky="ws")
+        self.third_frame.grid_columnconfigure(1, weight=1)
+        self.empty2 = customtkinter.CTkLabel(self.third_frame,text="")
+        self.empty2.grid(row=3, column=0, padx=10, pady=10, sticky="ws")
         self.entry_name3 = customtkinter.CTkEntry(self.third_frame,placeholder_text="Ник",width=120,height=25,border_width=2,corner_radius=10)
         self.entry_name3.grid(row=5, column=0, padx=10, pady=2.5, sticky="ws")
         self.button_play3 = customtkinter.CTkButton(self.third_frame,width=120,height=32,border_width=0,corner_radius=8,text="Play",command=self.play_minecraft3)
-        self.button_play3.grid(row=6, column=2, padx=10, pady=10, sticky="ws")
+        self.button_play3.grid(row=6, column=3, padx=10, pady=10, sticky="ws")
         self.progressbar3 = customtkinter.CTkProgressBar(self.third_frame, orientation="horizontal")
         self.progressbar3.grid(row=6,column=1, padx=0, pady=0)
         self.versions = []
@@ -160,10 +157,7 @@ class App(customtkinter.CTk):
         with open(f"{os.path.realpath(__file__)[:-11]}\\save.txt","r",encoding="utf-8") as f:
             mine_dir=f.readline()
             self.minecraft_directory = mine_dir
-            mine_dir=mine_dir.rstrip("\n")
-            self.entry_minecraft_directory.insert(0,mine_dir)
-            self.entry_minecraft_directory2.insert(0,mine_dir)
-            self.entry_minecraft_directory3.insert(0,mine_dir)
+            self.mine_dir=mine_dir.rstrip("\n")
             if self.minecraft_directory == " ":
                 self.minecraft_directory = ".CatLauncher"
             name= f.readline()
@@ -172,27 +166,44 @@ class App(customtkinter.CTk):
             self.entry_name2.insert(0,name)
             self.entry_name3.insert(0,name)
             self.memory_select = f.readline()
+            self.empty = customtkinter.CTkLabel(self.third_frame,text="")
+            self.empty.grid(row=4, column=0, padx=10, pady=140, sticky="ws")
         try:
-            self.modpacks = [name for name in os.listdir(f"{self.entry_minecraft_directory3.get()}\\customs") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory3.get()}\\customs", name))]
+            self.modpacks = [name for name in os.listdir(f"{self.mine_dir}\\customs") if os.path.isdir(os.path.join(f"{self.mine_dir}\\customs", name))]
             for modpack in self.modpacks:
-                self.modpack_version = [name for name in os.listdir(f"{self.entry_minecraft_directory3.get()}\\customs\\{modpack}") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory3.get()}\\customs\\{modpack}", name))]
+                self.modpack_version = [name for name in os.listdir(f"{self.mine_dir}\\customs\\{modpack}") if os.path.isdir(os.path.join(f"{self.mine_dir}\\customs\\{modpack}", name))]
+            with open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\description.txt","r",encoding="utf-8") as f:
+                description=f.read()
+                longest_line=len(max(open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\description.txt", 'r'), key=len))
+                try:
+                    self.image = customtkinter.CTkImage(Image.open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\icon.png"), size=(48, 48))
+                except:
+                    self.image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo.png")), size=(48, 48))
+                self.Description_Scroll = customtkinter.CTkScrollableFrame(self.third_frame, width=longest_line*4.5, height=300)
+                self.Description_Scroll.grid_columnconfigure(0, weight=1)
+                self.Description_Scroll.grid(row=4, column=0, padx=10, pady=0)
+            self.description_label = customtkinter.CTkLabel(self.Description_Scroll,text=description,justify="left",compound="top",image=self.image)
+            self.description_label.grid(row=4, column=0, padx=10, pady=10)
         except:
-            print("Not found customs!")
             self.modpacks = []
-        self.menu_version_selection3 = customtkinter.CTkOptionMenu(self.third_frame,values=self.modpacks,command=self.selection_version)
+        self.menu_version_selection3 = customtkinter.CTkOptionMenu(self.third_frame,values=self.modpacks,command=self.selection_custom_version)
         self.menu_version_selection3.grid(row=6, column=0, padx=10, pady=10, sticky="ws")
-        CTkScrollableDropdown(self.menu_version_selection3,values=self.modpacks,command=self.selection_version)
+        CTkScrollableDropdown(self.menu_version_selection3,values=self.modpacks,command=self.selection_custom_version)
         
         
         
         self.settings_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.settings_frame.grid_columnconfigure(0, weight=1)
+        self.settings_frame.grid_columnconfigure(2, weight=1)
+        self.entry_minecraft_directory = customtkinter.CTkEntry(self.settings_frame,placeholder_text=".CatLauncher",width=275,height=25,border_width=2,corner_radius=10)
+        self.entry_minecraft_directory.grid(row=7, column=0, padx=10, pady=10, sticky="ws")
+        self.entry_minecraft_success = customtkinter.CTkButton(self.settings_frame,command=self.entry_minecraft_directory_sync,text="Потвердить")
+        self.entry_minecraft_success.grid(row=7, column=0, padx=285, pady=10, sticky="ws")
         self.memory_slider = customtkinter.CTkSlider(self.settings_frame, from_=0, to=(psutil.virtual_memory().total//1024)//1024//1024, command=self.slider_event)
         self.memory_slider.grid(row=6, column=0, padx=10, pady=10, sticky="ws")
         self.memory_label = customtkinter.CTkLabel(self.settings_frame,text="Memory: 4G")
-        self.memory_label.grid(row=6, column=0, padx=210, pady=15, sticky="ws")
+        self.memory_label.grid(row=6, column=0, padx=210, pady=17.5, sticky="ws")
         
-         
+        self.entry_minecraft_directory.insert(0,self.mine_dir)
         # select default frame
         self.select_frame_by_name("home")
         self.progressbar3.set(0)
@@ -203,8 +214,26 @@ class App(customtkinter.CTk):
         else:
             self.memory_label.configure(text=f"Memory: {self.memory_select}G")
             self.memory_slider.set(int(self.memory_select))
-            print(self.memory_select)
-
+    def entry_minecraft_directory_sync(self):
+        self.mine_dir = self.entry_minecraft_directory.get()
+        try:
+            self.modpacks = [name for name in os.listdir(f"{self.mine_dir}\\customs") if os.path.isdir(os.path.join(f"{self.mine_dir}\\customs", name))]
+            for modpack in self.modpacks:
+                self.modpack_version = [name for name in os.listdir(f"{self.mine_dir}\\customs\\{modpack}") if os.path.isdir(os.path.join(f"{self.mine_dir}\\customs\\{modpack}", name))]
+            with open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\description.txt","r",encoding="utf-8") as f:
+                description=f.read()
+                longest_line=len(max(open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\description.txt", 'r'), key=len))
+                try:
+                    self.image = customtkinter.CTkImage(Image.open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\icon.png"), size=(48, 48))
+                except:
+                    self.image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo.png")), size=(48, 48))
+                self.Description_Scroll = customtkinter.CTkScrollableFrame(self.third_frame, width=longest_line*4.5, height=300)
+                self.Description_Scroll.grid_columnconfigure(0, weight=1)
+                self.Description_Scroll.grid(row=4, column=0, padx=10, pady=0)
+            self.description_label = customtkinter.CTkLabel(self.Description_Scroll,text=description,justify="left",compound="top",image=self.image)
+            self.description_label.grid(row=4, column=0, padx=10, pady=10)
+        except:
+            self.modpacks = []
     def maximum(self,max_value, value):
         max_value[0] = value
     def printProgressBar(self,iteration, total, decimals=1):
@@ -217,7 +246,6 @@ class App(customtkinter.CTk):
             self.progressbar2.set(0)
             self.progressbar3.set(0)
     def slider_event(self,value):
-        print(value)
         self.memory_label.configure(text=f"Memory: {round(value)}G")
         self.memory_select = round(value)
             
@@ -269,11 +297,20 @@ class App(customtkinter.CTk):
         self.menu_version_selection.set(new_version)
         self.menu_version_selection2.set(new_version)
         self.menu_version_selection3.set(new_version)
+    def selection_custom_version(self,new_version):
+        self.version = new_version
+        self.menu_version_selection3.set(new_version)
+        with open(f"{self.entry_minecraft_directory.get()}\\customs\\{new_version}\\description.txt","r",encoding="utf-8") as f:
+            description=f.read()
+        try:
+            self.image = customtkinter.CTkImage(Image.open(f"{self.entry_minecraft_directory.get()}\\customs\\{self.modpacks[0]}\\icon.png"), size=(48, 48))
+        except:
+            self.image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo.png")), size=(48, 48))
+        self.description_label.configure(text=description,image=self.image)
     def play_minecraft(self):
         try:
             minecraft=threading.Thread(target=self.async_play_minecraft)
             minecraft.start()
-            print("successfully")
             return
         except RuntimeError:
             return 
@@ -311,7 +348,6 @@ class App(customtkinter.CTk):
                 alias = response.json()["SKIN"]["metadata"]
             except:
                 alias = "STEVE"
-            print(alias)
             url_id = f"https://authserver.ely.by/api/users/profiles/minecraft/{self.entry_name.get()}"
             response_id = requests.get(url_id)
             uuid = response_id.json()["id"]
@@ -334,14 +370,11 @@ class App(customtkinter.CTk):
             f.write(f"{self.entry_minecraft_directory.get()}\n{self.entry_name.get()}")
         self.minecraft_directory = f"{self.entry_minecraft_directory.get()}//vanila//{self.version}"
         minecraft_launcher_lib.install.install_minecraft_version(self.version,self.minecraft_directory,callback=self.callback)
-        print(options)
-        print("test")
         subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=self.version,minecraft_directory=self.minecraft_directory,options=options))
     def play_minecraft2(self):
         try:
             minecraft=threading.Thread(target=self.async_play_minecraft2)
             minecraft.start()
-            print("successfully")
             return
         except RuntimeError:
             return 
@@ -379,7 +412,6 @@ class App(customtkinter.CTk):
                 alias = response.json()["SKIN"]["metadata"]
             except:
                 alias = "STEVE"
-            print(alias)
             url_id = f"https://authserver.ely.by/api/users/profiles/minecraft/{self.entry_name2.get()}"
             response_id = requests.get(url_id)
             uuid = response_id.json()["id"]
@@ -400,15 +432,13 @@ class App(customtkinter.CTk):
             }
         with open(f"{os.path.realpath(__file__)[:-11]}\\save.txt","w+",encoding="utf-8") as f:
             f.write(f"{self.entry_minecraft_directory.get()}\n{self.entry_name2.get()}")
-        self.minecraft_directory = f"{self.entry_minecraft_directory2.get()}//forge//{self.version}"
-        print(self.minecraft_directory)
+        self.minecraft_directory = f"{self.entry_minecraft_directory.get()}//forge//{self.version}"
         minecraft_launcher_lib.forge.install_forge_version(self.version, self.minecraft_directory,callback=self.callback)
         subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=minecraft_launcher_lib.forge.forge_to_installed_version(self.version),minecraft_directory=self.minecraft_directory,options=options))
     def play_minecraft3(self):
         try:
             minecraft=threading.Thread(target=self.async_play_minecraft3)
             minecraft.start()
-            print("successfully")
             return
         except RuntimeError:
             return 
@@ -446,7 +476,6 @@ class App(customtkinter.CTk):
                 alias = response.json()["SKIN"]["metadata"]
             except:
                 alias = "STEVE"
-            print(alias)
             url_id = f"https://authserver.ely.by/api/users/profiles/minecraft/{self.entry_name3.get()}"
             response_id = requests.get(url_id)
             uuid = response_id.json()["id"]
@@ -467,18 +496,14 @@ class App(customtkinter.CTk):
             }
         with open(f"{os.path.realpath(__file__)[:-11]}\\save.txt","w+",encoding="utf-8") as f:
             f.write(f"{self.entry_minecraft_directory.get()}\n{self.entry_name3.get()}\n{self.memory_select}")
-        print([name for name in os.listdir(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}"))])
-        if [name for name in os.listdir(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}"))] == ["forge"]:
-            custom_ver = [name for name in os.listdir(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}\\forge") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}\\forge", name))]
-            self.minecraft_directory = f"{self.entry_minecraft_directory2.get()}\\custom\\{self.version}\\forge\\{custom_ver[0]}"
-            print(self.minecraft_directory)
-            print(custom_ver[0])
+        if [name for name in os.listdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}"))] == ["forge"]:
+            custom_ver = [name for name in os.listdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\forge") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\forge", name))]
+            self.minecraft_directory = f"{self.entry_minecraft_directory.get()}\\custom\\{self.version}\\forge\\{custom_ver[0]}"
             minecraft_launcher_lib.forge.install_forge_version(custom_ver[0], self.minecraft_directory,callback=self.callback)
             subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=minecraft_launcher_lib.forge.forge_to_installed_version(custom_ver[0]),minecraft_directory=self.minecraft_directory,options=options))
-        elif [name for name in os.listdir(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}"))] == ["vanila"]:
-            custom_ver = [name for name in os.listdir(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}\\vanila") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory3.get()}\\customs\\{self.version}\\vanila", name))]
-            self.minecraft_directory = f"{self.entry_minecraft_directory2.get()}\\custom\\{self.version}\\vanila\\{custom_ver[0]}"
-            print(custom_ver[0])
+        elif [name for name in os.listdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}"))] == ["vanila"]:
+            custom_ver = [name for name in os.listdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\vanila") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\vanila", name))]
+            self.minecraft_directory = f"{self.entry_minecraft_directory.get()}\\custom\\{self.version}\\vanila\\{custom_ver[0]}"
             minecraft_launcher_lib.install.install_minecraft_version(custom_ver[0],self.minecraft_directory,callback=self.callback)
             subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=custom_ver[0],minecraft_directory=self.minecraft_directory,options=options))
 
