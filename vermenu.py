@@ -6,15 +6,15 @@ from CTkScrollableDropdown import *
 import minecraft_launcher_lib
 import subprocess
 import requests
-import psutil,threading
+import psutil,threading,zipfile
 
 
 
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_images")
-        self.logo_ico = os.path.join(image_path, "logo.ico")
+        self.image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_images")
+        self.logo_ico = os.path.join(self.image_path, "logo.ico")
         self.version= "1.20.6"
         self.memory_select =0
         self.iconbitmap(self.logo_ico)
@@ -27,16 +27,16 @@ class App(customtkinter.CTk):
 
 
         # load images with light and dark mode image
-        self.logo_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo.png")), size=(26, 26))
-        self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")), size=(20, 20))
-        self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "minecraft_dark.png")),
-                                                 dark_image=Image.open(os.path.join(image_path, "minecraft_light.png")), size=(20, 20))
-        self.anvil_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "forge_dark.png")),
-                                                 dark_image=Image.open(os.path.join(image_path, "forge_light.png")), size=(30, 25))
-        self.add_user_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "custom_dark.png")),
-                                                     dark_image=Image.open(os.path.join(image_path, "custom_light.png")), size=(20, 20))
-        self.settings_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "gear_dark.png")),
-                                                     dark_image=Image.open(os.path.join(image_path, "gear_light.png")), size=(20, 20))
+        self.logo_image = customtkinter.CTkImage(Image.open(os.path.join(self.image_path, "logo.png")), size=(26, 26))
+        self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(self.image_path, "image_icon_light.png")), size=(20, 20))
+        self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(self.image_path, "minecraft_dark.png")),
+                                                 dark_image=Image.open(os.path.join(self.image_path, "minecraft_light.png")), size=(20, 20))
+        self.anvil_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(self.image_path, "forge_dark.png")),
+                                                 dark_image=Image.open(os.path.join(self.image_path, "forge_light.png")), size=(30, 25))
+        self.add_user_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(self.image_path, "custom_dark.png")),
+                                                     dark_image=Image.open(os.path.join(self.image_path, "custom_light.png")), size=(20, 20))
+        self.settings_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(self.image_path, "gear_dark.png")),
+                                                     dark_image=Image.open(os.path.join(self.image_path, "gear_light.png")), size=(20, 20))
 
         # create navigation frame
         self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
@@ -144,9 +144,11 @@ class App(customtkinter.CTk):
         self.entry_name3 = customtkinter.CTkEntry(self.third_frame,placeholder_text="Ник",width=120,height=25,border_width=2,corner_radius=10)
         self.entry_name3.grid(row=5, column=0, padx=10, pady=2.5, sticky="ws")
         self.button_play3 = customtkinter.CTkButton(self.third_frame,width=120,height=32,border_width=0,corner_radius=8,text="Play",command=self.play_minecraft3)
-        self.button_play3.grid(row=6, column=3, padx=10, pady=10, sticky="ws")
+        self.button_play3.grid(row=6, column=3, padx=25, pady=10, sticky="ws")
+        self.button_export = customtkinter.CTkButton(self.third_frame,width=120,height=32,border_width=0,corner_radius=8,text="Open Export and Import",command=self.create_export_and_import_window)
+        self.button_export.grid(row=5, column=3, padx=10, pady=2.5, sticky="ws")
         self.progressbar3 = customtkinter.CTkProgressBar(self.third_frame, orientation="horizontal")
-        self.progressbar3.grid(row=6,column=1, padx=0, pady=0)
+        self.progressbar3.grid(row=6,column=1, padx=(0,0), pady=0)
         self.versions = []
         self.max_value = [0]
         self.current_max = 0
@@ -165,7 +167,7 @@ class App(customtkinter.CTk):
             self.entry_name.insert(0,name)
             self.entry_name2.insert(0,name)
             self.entry_name3.insert(0,name)
-            self.memory_select = f.readline()
+            self.memory_select = int(f.readline())
             self.empty = customtkinter.CTkLabel(self.third_frame,text="")
             self.empty.grid(row=4, column=0, padx=10, pady=140, sticky="ws")
         try:
@@ -178,7 +180,7 @@ class App(customtkinter.CTk):
                 try:
                     self.image = customtkinter.CTkImage(Image.open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\icon.png"), size=(48, 48))
                 except:
-                    self.image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo.png")), size=(48, 48))
+                    self.image = customtkinter.CTkImage(Image.open(os.path.join(self.image_path, "logo.png")), size=(48, 48))
                 self.Description_Scroll = customtkinter.CTkScrollableFrame(self.third_frame, width=longest_line*4.5, height=300)
                 self.Description_Scroll.grid_columnconfigure(0, weight=1)
                 self.Description_Scroll.grid(row=4, column=0, padx=10, pady=0)
@@ -208,12 +210,57 @@ class App(customtkinter.CTk):
         self.select_frame_by_name("home")
         self.progressbar3.set(0)
         self.percent = 0
-        if self.memory_select ==0 or self.memory_select == "":
+        if int(self.memory_select) ==0 or isinstance(self.memory_select,str):
             self.memory_select= 4
             self.memory_slider.set(4)
         else:
             self.memory_label.configure(text=f"Memory: {self.memory_select}G")
             self.memory_slider.set(int(self.memory_select))
+        if not os.path.exists(f"{self.entry_minecraft_directory.get()}\\customs"):
+            os.mkdir(f"{self.entry_minecraft_directory.get()}\\customs")
+    def create_export_and_import_window(self):
+        self.export=customtkinter.CTkToplevel(self)
+        self.export.grid_columnconfigure(2,weight=1)
+        self.export.grid_rowconfigure(3,weight=1)
+        self.export.geometry("320x200")
+        self.export.resizable(False,False)
+        self.export.title("Export and Import")
+        self.export_button = customtkinter.CTkButton(self.export,text="Export",width=120,height=32,border_width=0,corner_radius=8,command=self.export_files) 
+        self.export_button.grid(row=1,column=0,padx=(40,5),pady=(40,5),sticky="ws")
+        self.import_button = customtkinter.CTkButton(self.export,text="Import",width=120,height=32,border_width=0,corner_radius=8,command=self.import_modpack) 
+        self.import_button.grid(row=1,column=0,padx=(165,40),pady=(40,5),sticky="ws")
+        self.custom_select = customtkinter.CTkOptionMenu(self.export,values=self.modpacks,command=self.export_select)
+        self.custom_select.grid(row=1, column=0, padx=(100,0), pady=(60,60), sticky="ws")
+        self.custom_select.set(self.modpacks[0])
+        self.modpack_export = self.modpacks[0]
+        self.export.focus_set()
+    def export_files(self):
+        with zipfile.ZipFile(f"{self.mine_dir}\\{self.modpack_export}-CL.zip","w") as zip_file:
+            for root, dirs, files in os.walk(f'{self.mine_dir}\\customs\\{self.modpack_export}'): # Список всех файлов и папок в директории folder
+                for file in files:
+                    zip_file.write(os.path.join(root,file),os.path.relpath(os.path.join(root,file),f"{self.mine_dir}\\customs"))
+        zip_file.close()
+        self.warning = customtkinter.CTkToplevel(self.export)
+        self.warning.grid_columnconfigure(2,weight=1)
+        self.warning.grid_rowconfigure(3,weight=1)
+        self.warning.geometry("320x200")
+        self.warning.resizable(False,False)
+        self.warning.title("Export and Import")
+        self.accept = customtkinter.CTkButton(self.warning,text="Accept",width=120,height=32,border_width=0,corner_radius=8,command=self.destroy_warning) 
+        self.accept.grid(row=1,column=0,padx=(100,5),pady=(40,5),sticky="ws")
+        self.custom_select = customtkinter.CTkLabel(self.warning,text=f"Your modpack saved to path:{self.mine_dir}",text_color=("gray10", "gray90"))
+        self.custom_select.grid(row=1, column=0, padx=(40,0), pady=(60,60), sticky="ws")
+        self.warning.focus_set()
+    def import_modpack(self):
+        file = customtkinter.filedialog.askopenfilename()
+        with zipfile.ZipFile(file,"r") as zip_file:
+            zip_file.extractall(path=f"{self.mine_dir}\\customs")
+    def export_select(self,value):
+        self.modpack_export = value
+        self.custom_select.set(value)
+        
+    def destroy_warning(self):
+        self.warning.destroy()
     def entry_minecraft_directory_sync(self):
         self.mine_dir = self.entry_minecraft_directory.get()
         try:
@@ -226,7 +273,7 @@ class App(customtkinter.CTk):
                 try:
                     self.image = customtkinter.CTkImage(Image.open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\icon.png"), size=(48, 48))
                 except:
-                    self.image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo.png")), size=(48, 48))
+                    self.image = customtkinter.CTkImage(Image.open(os.path.join(self.image_path, "logo.png")), size=(48, 48))
                 self.Description_Scroll = customtkinter.CTkScrollableFrame(self.third_frame, width=longest_line*4.5, height=300)
                 self.Description_Scroll.grid_columnconfigure(0, weight=1)
                 self.Description_Scroll.grid(row=4, column=0, padx=10, pady=0)
@@ -286,6 +333,24 @@ class App(customtkinter.CTk):
 
     def frame_3_button_event(self):
         self.select_frame_by_name("frame_3")
+        try:
+            self.modpacks = [name for name in os.listdir(f"{self.mine_dir}\\customs") if os.path.isdir(os.path.join(f"{self.mine_dir}\\customs", name))]
+            for modpack in self.modpacks:
+                self.modpack_version = [name for name in os.listdir(f"{self.mine_dir}\\customs\\{modpack}") if os.path.isdir(os.path.join(f"{self.mine_dir}\\customs\\{modpack}", name))]
+            with open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\description.txt","r",encoding="utf-8") as f:
+                description=f.read()
+                longest_line=len(max(open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\description.txt", 'r'), key=len))
+                try:
+                    self.image = customtkinter.CTkImage(Image.open(f"{self.mine_dir}\\customs\\{self.modpacks[0]}\\icon.png"), size=(48, 48))
+                except:
+                    self.image = customtkinter.CTkImage(Image.open(os.path.join(self.image_path, "logo.png")), size=(48, 48))
+                self.Description_Scroll = customtkinter.CTkScrollableFrame(self.third_frame, width=longest_line*4.5, height=300)
+                self.Description_Scroll.grid_columnconfigure(0, weight=1)
+                self.Description_Scroll.grid(row=4, column=0, padx=10, pady=0)
+            self.description_label = customtkinter.CTkLabel(self.Description_Scroll,text=description,justify="left",compound="top",image=self.image)
+            self.description_label.grid(row=4, column=0, padx=10, pady=10)
+        except:
+            self.modpacks = []
         self.menu_version_selection3.set(self.modpacks[0])
         self.version = self.modpacks[0]
     def frame_4_button_event(self):
@@ -305,7 +370,7 @@ class App(customtkinter.CTk):
         try:
             self.image = customtkinter.CTkImage(Image.open(f"{self.entry_minecraft_directory.get()}\\customs\\{self.modpacks[0]}\\icon.png"), size=(48, 48))
         except:
-            self.image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo.png")), size=(48, 48))
+            self.image = customtkinter.CTkImage(Image.open(os.path.join(self.image_path, "logo.png")), size=(48, 48))
         self.description_label.configure(text=description,image=self.image)
     def play_minecraft(self):
         try:
@@ -315,12 +380,21 @@ class App(customtkinter.CTk):
         except RuntimeError:
             return 
     def async_play_minecraft(self):
+        if not os.path.exists(f"{self.entry_minecraft_directory.get()}\\vanila"):
+            os.mkdir(f"{self.entry_minecraft_directory.get()}\\vanila")
+        if not os.path.exists(f"{self.entry_minecraft_directory.get()}\\vanila\\{self.version}"):
+            os.mkdir(f"{self.entry_minecraft_directory.get()}\\vanila\\{self.version}")
+        self.memory_select = round(self.memory_slider.get())
+        if {self.memory_select} == 1:
+            print("Ошибка")
         try:
             url = f'https://api.mojang.com/users/profiles/minecraft/{self.entry_name.get()}?'
-            response = requests.get(url)
-            uuid = response.json()['id']
+            response_id = requests.get(url)
+            uuid = response_id.json()['id']
             url = f'http://skinsystem.ely.by/textures/{self.entry_name.get()}'
             response = requests.get(url)
+            print(response_id.status_code)
+            print(f"https://authserver.ely.by/api/users/profiles/minecraft/{self.entry_name.get()}")
             skin = response.json()['SKIN']["url"]
             try:
                 alias = response.json()["SKIN"]["metadata"]
@@ -332,7 +406,7 @@ class App(customtkinter.CTk):
                 "token": "",
                 "launcherName": "CatLauncher",
                 "launcherVersion": "0.5",
-                "jvmArguments":[f"-Xmx{self.memory_select}G","-Xms2G"],
+                "gameDirectory": f"{self.entry_minecraft_directory.get()}\\vanila\\{self.version}",
                 "skins" : [{
                     "id" : "6a6e65e5-76dd-4c3c-a625-162924514568",
                     "state" : "ACTIVE",
@@ -350,14 +424,17 @@ class App(customtkinter.CTk):
                 alias = "STEVE"
             url_id = f"https://authserver.ely.by/api/users/profiles/minecraft/{self.entry_name.get()}"
             response_id = requests.get(url_id)
+            print(response_id.status_code)
+            print(f"https://authserver.ely.by/api/users/profiles/minecraft/{self.entry_name.get()}")
             uuid = response_id.json()["id"]
+            
             options={
                 "username" : self.entry_name.get(),
                 "uuid": uuid,
                 "token": "",
                 "launcherName": "CatLauncher",
                 "launcherVersion": "0.5",
-                "jvmArguments":[f"-Xmx{self.memory_select}G","-Xms2G"],
+                "gameDirectory": f"{self.entry_minecraft_directory.get()}\\vanila\\{self.version}",
                 "skins" : [{
                     "id" : "6a6e65e5-76dd-4c3c-a625-162924514568",
                     "state" : "ACTIVE",
@@ -366,10 +443,17 @@ class App(customtkinter.CTk):
                     "alias" : alias
                 }]
             }
+        print(response.status_code)
+        print(response_id.status_code)
+        options["jvmArguments"] = [f"-Xmx{int(self.memory_select)}G", "-Xms2G"]
+        print(f"{self.entry_minecraft_directory.get()}\\vanila\\{self.version}")
         with open(f"{os.path.realpath(__file__)[:-11]}\\save.txt","w+",encoding="utf-8") as f:
-            f.write(f"{self.entry_minecraft_directory.get()}\n{self.entry_name.get()}")
-        self.minecraft_directory = f"{self.entry_minecraft_directory.get()}//vanila//{self.version}"
+            f.write(f"{self.entry_minecraft_directory.get()}\n{self.entry_name.get()}\n{self.memory_select}")
+            
+
+        self.minecraft_directory = f"{self.entry_minecraft_directory.get()}"
         minecraft_launcher_lib.install.install_minecraft_version(self.version,self.minecraft_directory,callback=self.callback)
+
         subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=self.version,minecraft_directory=self.minecraft_directory,options=options))
     def play_minecraft2(self):
         try:
@@ -379,6 +463,13 @@ class App(customtkinter.CTk):
         except RuntimeError:
             return 
     def async_play_minecraft2(self):
+        self.memory_select = round(self.memory_slider.get())
+        if not os.path.exists(f"{self.entry_minecraft_directory.get()}\\forge"):
+            os.mkdir(f"{self.entry_minecraft_directory.get()}\\forge")
+        if not os.path.exists(f"{self.entry_minecraft_directory.get()}\\forge\\{self.version}"):
+            os.mkdir(f"{self.entry_minecraft_directory.get()}\\forge\\{self.version}")
+        if {self.memory_select} == 1:
+            print("Ошибка")
         try:
             url = f'https://api.mojang.com/users/profiles/minecraft/{self.entry_name2.get()}?'
             response = requests.get(url)
@@ -396,7 +487,7 @@ class App(customtkinter.CTk):
                 "token": "",
                 "launcherName": "CatLauncher",
                 "launcherVersion": "0.5",
-                "jvmArguments":[f"-Xmx{self.memory_select}G","-Xms2G"],
+                "gameDirectory": f"{self.entry_minecraft_directory.get()}\\forge\\{self.version}",
                 "skins" : [{
                     "id" : "6a6e65e5-76dd-4c3c-a625-162924514568",
                     "state" : "ACTIVE",
@@ -421,7 +512,7 @@ class App(customtkinter.CTk):
                 "token": "",
                 "launcherName": "CatLauncher",
                 "launcherVersion": "0.5",
-                "jvmArguments":[f"-Xmx{self.memory_select}G","-Xms2G"],
+                "gameDirectory": f"{self.entry_minecraft_directory.get()}\\forge\\{self.version}",
                 "skins" : [{
                     "id" : "6a6e65e5-76dd-4c3c-a625-162924514568",
                     "state" : "ACTIVE",
@@ -430,9 +521,10 @@ class App(customtkinter.CTk):
                     "alias" : alias
                 }]
             }
+        options["jvmArguments"] = [f"-Xmx{int(self.memory_select)}G", "-Xms2G"]
         with open(f"{os.path.realpath(__file__)[:-11]}\\save.txt","w+",encoding="utf-8") as f:
-            f.write(f"{self.entry_minecraft_directory.get()}\n{self.entry_name2.get()}")
-        self.minecraft_directory = f"{self.entry_minecraft_directory.get()}//forge//{self.version}"
+            f.write(f"{self.entry_minecraft_directory.get()}\n{self.entry_name2.get()}\n{self.memory_select}")
+        self.minecraft_directory = f"{self.entry_minecraft_directory.get()}"
         minecraft_launcher_lib.forge.install_forge_version(self.version, self.minecraft_directory,callback=self.callback)
         subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=minecraft_launcher_lib.forge.forge_to_installed_version(self.version),minecraft_directory=self.minecraft_directory,options=options))
     def play_minecraft3(self):
@@ -443,6 +535,7 @@ class App(customtkinter.CTk):
         except RuntimeError:
             return 
     def async_play_minecraft3(self):
+        self.memory_select = round(self.memory_slider.get())
         try:
             url = f'https://api.mojang.com/users/profiles/minecraft/{self.entry_name3.get()}?'
             response = requests.get(url)
@@ -460,7 +553,6 @@ class App(customtkinter.CTk):
                 "token": "",
                 "launcherName": "CatLauncher",
                 "launcherVersion": "0.5",
-                "jvmArguments":[f"-Xmx{self.memory_select}G","-Xms2G"],
                 "skins" : [{
                     "id" : "6a6e65e5-76dd-4c3c-a625-162924514568",
                     "state" : "ACTIVE",
@@ -485,7 +577,6 @@ class App(customtkinter.CTk):
                 "token": "",
                 "launcherName": "CatLauncher",
                 "launcherVersion": "0.5",
-                "jvmArguments":[f"-Xmx{self.memory_select}G","-Xms2G"],
                 "skins" : [{
                     "id" : "6a6e65e5-76dd-4c3c-a625-162924514568",
                     "state" : "ACTIVE",
@@ -494,18 +585,25 @@ class App(customtkinter.CTk):
                     "alias" : alias
                 }]
             }
+        options["jvmArguments"] = [f"-Xmx{int(self.memory_select)}G", "-Xms2G"]
         with open(f"{os.path.realpath(__file__)[:-11]}\\save.txt","w+",encoding="utf-8") as f:
             f.write(f"{self.entry_minecraft_directory.get()}\n{self.entry_name3.get()}\n{self.memory_select}")
-        if [name for name in os.listdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}"))] == ["forge"]:
-            custom_ver = [name for name in os.listdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\forge") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\forge", name))]
-            self.minecraft_directory = f"{self.entry_minecraft_directory.get()}\\custom\\{self.version}\\forge\\{custom_ver[0]}"
-            minecraft_launcher_lib.forge.install_forge_version(custom_ver[0], self.minecraft_directory,callback=self.callback)
-            subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=minecraft_launcher_lib.forge.forge_to_installed_version(custom_ver[0]),minecraft_directory=self.minecraft_directory,options=options))
-        elif [name for name in os.listdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}"))] == ["vanila"]:
-            custom_ver = [name for name in os.listdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\vanila") if os.path.isdir(os.path.join(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\vanila", name))]
-            self.minecraft_directory = f"{self.entry_minecraft_directory.get()}\\custom\\{self.version}\\vanila\\{custom_ver[0]}"
-            minecraft_launcher_lib.install.install_minecraft_version(custom_ver[0],self.minecraft_directory,callback=self.callback)
-            subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=custom_ver[0],minecraft_directory=self.minecraft_directory,options=options))
+        with open(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\manifest.json") as manifest:
+            data = json.load(manifest)
+            if data["loadertype"] == "forge":
+                self.minecraft_directory = f"{self.entry_minecraft_directory.get()}"
+                options["gameDirectory"] = f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\{data["version"]}"
+                if not os.path.exists(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\{data["version"]}"):
+                    os.mkdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\{data["version"]}")
+                minecraft_launcher_lib.forge.install_forge_version(data["version"], self.minecraft_directory,callback=self.callback)
+                subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=minecraft_launcher_lib.forge.forge_to_installed_version(data["version"]),minecraft_directory=self.minecraft_directory,options=options))
+            elif data["loadertype"] == "vanila":
+                self.minecraft_directory = f"{self.entry_minecraft_directory.get()}"
+                options["gameDirectory"] = f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\{data["version"]}"
+                if not os.path.exists(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\{data["version"]}"):
+                    os.mkdir(f"{self.entry_minecraft_directory.get()}\\customs\\{self.version}\\ {data["version"]}")
+                minecraft_launcher_lib.install.install_minecraft_version(data["version"],self.minecraft_directory,callback=self.callback)
+                subprocess.call(minecraft_launcher_lib.command.get_minecraft_command(version=data["version"],minecraft_directory=self.minecraft_directory,options=options))
 
 
         
