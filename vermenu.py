@@ -170,6 +170,8 @@ class App(customtkinter.CTk):
             self.memory_select = int(f.readline())
             self.empty = customtkinter.CTkLabel(self.third_frame,text="")
             self.empty.grid(row=4, column=0, padx=10, pady=140, sticky="ws")
+            if not os.path.exists(f"{self.mine_dir}"):
+                os.mkdir(f"{self.mine_dir}")
         try:
             self.modpacks = [name for name in os.listdir(f"{self.mine_dir}\\customs") if os.path.isdir(os.path.join(f"{self.mine_dir}\\customs", name))]
             for modpack in self.modpacks:
@@ -235,10 +237,10 @@ class App(customtkinter.CTk):
         self.modpack_export = self.modpacks[0]
         self.export.focus_set()
     def export_files(self):
-        with zipfile.ZipFile(f"{self.mine_dir}\\{self.modpack_export}-CL.zip","w") as zip_file:
+        with zipfile.ZipFile(f"{self.mine_dir}\\{self.modpack_export}-CL.zip",mode="w",compression=8) as zip_file:
             for root, dirs, files in os.walk(f'{self.mine_dir}\\customs\\{self.modpack_export}'): # Список всех файлов и папок в директории folder
                 for file in files:
-                    zip_file.write(os.path.join(root,file),os.path.relpath(os.path.join(root,file),f"{self.mine_dir}\\customs"))
+                    zip_file.write(os.path.join(root,file),os.path.relpath(os.path.join(root,file),f"{self.mine_dir}\\customs"),compresslevel=5)
         zip_file.close()
         self.warning = customtkinter.CTkToplevel(self.export)
         self.warning.grid_columnconfigure(2,weight=1)
