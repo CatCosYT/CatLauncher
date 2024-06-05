@@ -8,6 +8,5 @@ And only java may not load
 
 TODO sheet:
 - Updating mods from the launcher
-- Convenient creation of custom versions
-- Import and export versions
 - Download modpacks and mods from CurseForge
+- Game loading optimization
